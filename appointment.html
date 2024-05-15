@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="home.css">
+    <title>Appointment</title>
+</head>
+<body>
+<section class="sub-header">
+  <nav>
+    <a href="index.html"><img src="image/received_2316052158585762-removebg-preview.png"></a>
+    <div class="nav-links">
+      <ul><li><a href="index.html">Home</a></li>
+        <li><a href="about.html" >About</a></li>
+        <li><a href="#">Services ▾</a>
+        <ul class="dropdown">
+          <li><a href="room.html">Rooms</a></li>
+          <li><a href="facilities.html">Facilities</a></li>
+        </li></ul>
+        <li><a href="contact.html">Contact</a></li>
+    </div>
+  </nav>
+    <h1>Booking</h1>
+  </section>
+
+
+<form id="myForm" action="room.html">
+<div class="form-box">
+    <div align="center "class="app">
+    <center><h1>Make an Appointment</h1></center>
+    <br>
+    <br>
+    <span class="details">Rooms: </span>
+    <select id="optionSelect" class="na" name="typeOfRoom" required>
+      <option value="Standard Room">Standard Room</option> 
+      <option value="Deluxe Room">Deluxe Room</option>
+  </select>
+  
+    <span class="details">Additionals: </span><br><br>
+
+    <input type="checkbox" id="pillow" name="additionals[]" value="Pillow" class="add">
+    <label for="pillow" class="addi">Pillow ₱50</label>
+    
+    <input type="checkbox" id="blanket" name="additionals[]" value="Blanket" class="add">
+    <label for="blanket" class="addi">Blanket ₱100</label>
+    
+    <input type="checkbox" id="mattress" name="additionals[]" value="Mattress" class="add">
+    <label for="mattress" class="addi">Mattress ₱200</label>
+
+    <div id="addedRooms"></div>
+    <br>
+
+    <span class="details" for="checkIn">Check-in: </span>
+    <input type="date" class="na" name="check_in" id="checkIn" required />
+    <span class="details">Time: </span>
+    <input type="time" class="na" name="time_in" required>
+    <br>
+    <br>
+    <span class="details" for="checkOut">Check-out: </span>
+    <input type="date" class="na" name="check_out" id="checkOut" required>
+    <span class="details">Time: </span>
+    <input type="time" class="na" name="time_out" required>
+    <br>
+    <br>
+    <div class="form-group">
+    <span class="details">Message</span>
+    <textarea name="message" class="wen" tabindex="4" placeholder="Write your message here"></textarea>
+
+    <label class="details" for="resultField">Total Cost:</label>
+    <input type="text" class="na" id="resultField" name="resultField" readonly>
+
+  </div>
+  
+  <span class="details" for="rcpNum">Receipt Number</span>
+  <input type="text" class="na" placeholder="Receipt Number" name="receipt" required>
+  <input type="submit" class="su" name="submitButton" value="Submit">
+    <input type="reset" class="su" value="Reset" onclick="resetForm()" >
+    <br>
+    <br>
+</div>
+</div></center></form>
+  </div>
+</div>
+
+<center><div class="loading" id="loading"></div></center>
+<div class="success-message" id="successMessage">Successfully added!</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const selectBox = document.getElementById('optionSelect');
+    const checkboxes = document.querySelectorAll('input[name="additionals[]"]');
+    const checkIn = document.getElementById('checkIn');
+    const checkOut = document.getElementById('checkOut');
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', calculateCost); // Calculate cost when checkbox changes
+    });
+
+    checkIn.addEventListener('change', calculateCost); // Calculate cost when checkIn changes
+    checkOut.addEventListener('change', calculateCost); // Calculate cost when checkOut changes
+    selectBox.addEventListener('change', calculateCost); // Calculate cost when room selection changes
+});
+
+// Reset form function
+function resetForm() {
+    document.getElementById("myForm").reset();
+    document.getElementById('resultField').value = ''; // Clear the result field
+}
+
+// Set minimum date for check-in and check-out
+var currentDate = new Date().toISOString().split('T')[0];
+document.getElementById('checkIn').min = currentDate;
+document.getElementById('checkOut').min = currentDate;
+
+function calculateCost() {
+    var checkIn = document.getElementById('checkIn').valueAsDate;
+    var checkOut = document.getElementById('checkOut').valueAsDate;
+    var roomSelect = document.getElementById('optionSelect');
+    var additionalsCheckboxes = document.querySelectorAll('input[name="additionals[]"]:checked');
+
+    if (!checkIn || !checkOut || !roomSelect.value) {
+        document.getElementById('resultField').value = '';
+        return;
+    }
+
+    var millisecondsPerDay = 24 * 60 * 60 * 1000;
+    var days = Math.round((checkOut - checkIn) / millisecondsPerDay);
+
+    var roomPrice = 0;
+    switch (roomSelect.value) {
+        case 'Standard Room':
+            roomPrice = 500;
+            break;
+        case 'Deluxe Room':
+            roomPrice = 1000;
+            break;
+    }
+
+    var totalCost = days * roomPrice;
+
+    additionalsCheckboxes.forEach(function (checkbox) {
+        var additionalPrice = 0;
+        switch (checkbox.value) {
+            case 'Pillow':
+                additionalPrice = 50;
+                break;
+            case 'Blanket':
+                additionalPrice = 100;
+                break;
+            case 'Mattress':
+                additionalPrice = 200;
+                break;
+        }
+
+        totalCost += additionalPrice;
+    });
+
+    document.getElementById('resultField').value = '₱ ' + totalCost.toFixed(2);
+
+    document.getElementById('myForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Show loading animation
+        var loading = document.getElementById('loading');
+        loading.style.display = 'block';
+
+        // Simulate a delay for the loading animation
+        setTimeout(function () {
+            loading.style.display = 'none'; // Hide loading animation
+
+            // Show success message
+            var successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+
+            // Simulate form submission
+            setTimeout(function () {
+                successMessage.style.display = 'none';
+                document.getElementById('myForm').submit(); // Submit the form after showing the success message
+            }, 2000);
+        }, 2000);
+    });
+}
+
+</script>
+
+
+
+
+
+</body>
+</html>
